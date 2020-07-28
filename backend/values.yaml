@@ -1,0 +1,47 @@
+replicaCount: 1
+
+backend:
+  name: db-open-proj
+  container:
+    image: postgres:10
+    pullPolicy: IfNotPresent
+    port: 5432
+  service:
+    name: open-project-database
+    type: ClusterIP
+    port: 5432
+  volume:
+    name: pgdata
+    kind: PersistentVolumeClaim
+    mountPath: /var/lib/postgresql/data
+    pvc:
+      name: pgdata
+      accessMode: ReadWriteOnce
+      storage: 100Mi
+  config:
+    name: postgres-config
+    data: 
+      - key: key
+        value: value
+secret:
+  name: db-secret
+env:
+  secret:
+    POSTGRES_DB: openproject
+    POSTGRES_PASSWORD: p4ssw0rd
+
+storageClassName: local-directory
+
+volumes:
+  - name: "pv-testing-helm"
+    size: "100Mi"
+    host: "minikube"
+    directory: "/mnt/minikue-helm-pv/"
+    #- name: "large-pv"
+    #size: "10Gi"
+    #host: "node1"
+    #    directory: "/var/kubernetes_local_directories/large-pv"
+
+ingress:
+  enabled: false
+

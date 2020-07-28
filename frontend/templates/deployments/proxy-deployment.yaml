@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.proxy.name }}
+  labels:
+    proxy: {{ .Values.proxy.name }}
+    group: {{ .Values.proxy.group }}
+spec:
+  replicas: {{ .Values.proxy.replicaCount }}
+  selector:
+    matchLabels:
+      proxy: {{ .Values.proxy.name }}
+  template:
+    metadata:
+      labels:
+        proxy: {{ .Values.proxy.name }}
+        group: {{ .Values.proxy.group }}
+    spec:
+      containers:
+        - name: {{ .Values.proxy.name }}
+          image: {{ .Values.proxy.container.image }}  
+          args:
+          - {{ .Values.proxy.container.args }}
+          env:
+            {{- range .Values.proxy.container.env}}
+            - name: {{ .name | quote }}
+              value: {{ .value | quote}}
+            {{- end}}

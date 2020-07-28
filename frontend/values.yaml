@@ -1,0 +1,211 @@
+replicaCount: 1
+
+
+opdata:
+  name: opdata
+  goup: opdata
+  volume:
+    name: opdata
+    kind: PersistentVolumeClaim
+    pvc:
+      name: opdata
+      accessMode: ReadWriteOnce
+      storage: 400Mi
+
+pgdata:
+  name: pgdata
+  goup: pgdata
+  volume:
+    name: pgdata
+    kind: PersistentVolumeClaim
+    pvc:
+      name: pgdata
+      accessMode: ReadWriteOnce
+      storage: 400Mi
+
+cache:
+  replicaCount: 1
+  name: cache
+  group: cache
+  container:
+    image: memcached
+    pullPolicy: IfNotPresent
+    restartPolicy: Always
+    port: 11211
+  service:
+    name: cache
+    type: ClusterIP
+    port: 11211
+    #  volume:
+    # name: opdata
+    #kind: PersistentVolumeClaim
+    # mountPath: /var/openproject/assets
+    #pvc:
+    #  name: opdata
+    #  accessMode: ReadWriteOnce
+    #  storage: 400Mi
+
+seeder:
+  name: seeder
+  goup: seeder
+  container:
+    image: openproject/community:10
+    args: ./docker/seeder
+    env:
+      - name: DATABASE_URL
+        value: postgres://postgres:p4ssw0rd@open-project-database/openproject
+      - name: IMAP_ENABLED
+        value: "false"
+      - name: OPENPROJECT_CACHE__MEMCACHE__SERVER
+        value: cache:11211
+      - name: OPENPROJECT_RAILS__RELATIVE__URL__ROOT
+      - name: RAILS_CACHE_STORE
+        value: memcache
+      - name: USE_PUMA
+        value: "true"
+    pullPolicy: IfNotPresent
+    restartPolicy: Always
+  volume:
+    name: opdata
+    kind: PersistentVolumeClaim
+    mountPath: /var/openproject/assets
+    pvc:
+      name: opdata
+
+cron:
+  replicaCount: 1
+  name: cron
+  goup: cron
+  container:
+    args: ./docker/cron
+    env:
+      - name: DATABASE_URL
+        value: postgres://postgres:p4ssw0rd@open-project-database/openproject
+      - name: IMAP_ENABLED
+        value: "false"
+      - name: OPENPROJECT_CACHE__MEMCACHE__SERVER
+        value: cache:11211
+      - name: OPENPROJECT_RAILS__RELATIVE__URL__ROOT
+      - name: RAILS_CACHE_STORE
+        value: memcache
+      - name: USE_PUMA
+        value: "true"
+    image: openproject/community:10
+    pullPolicy: IfNotPresent
+    restartPolicy: Always
+  volume:
+    name: opdata
+    kind: PersistentVolumeClaim
+    mountPath: /var/openproject/assets
+    pvc:
+      name: opdata
+      accessMode: ReadWriteOnce
+      storage: 400Mi
+
+
+
+worker:
+  replicaCount: 1
+  name: worker
+  goup: worker
+  container:
+    args: ./docker/worker
+    env:
+      - name: DATABASE_URL
+        value: postgres://postgres:p4ssw0rd@open-project-database/openproject
+      - name: IMAP_ENABLED
+        value: "false"
+      - name: OPENPROJECT_CACHE__MEMCACHE__SERVER
+        value: cache:11211
+      - name: OPENPROJECT_RAILS__RELATIVE__URL__ROOT
+      - name: RAILS_CACHE_STORE
+        value: memcache
+      - name: USE_PUMA
+        value: "true"
+    image: openproject/community:10
+    pullPolicy: IfNotPresent
+    restartPolicy: Always
+    port: 11211
+  volume:
+    name: opdata
+    kind: PersistentVolumeClaim
+    mountPath: /var/openproject/assets
+    pvc:
+      name: opdata
+      accessMode: ReadWriteOnce
+      storage: 400Mi
+
+web:
+  replicaCount: 1
+  name: web
+  goup: web
+  container:
+    args: ./docker/web
+    env:
+      - name: DATABASE_URL
+        value: postgres://postgres:p4ssw0rd@open-project-database/openproject
+      - name: IMAP_ENABLED
+        value: "false"
+      - name: OPENPROJECT_CACHE__MEMCACHE__SERVER
+        value: cache:11211
+      - name: OPENPROJECT_RAILS__RELATIVE__URL__ROOT
+      - name: RAILS_CACHE_STORE
+        value: memcache
+      - name: USE_PUMA
+        value: "true"
+    image: openproject/community:10
+    pullPolicy: IfNotPresent
+    restartPolicy: Always
+  service:
+    name: web
+    type: NodePort
+    port: 8080
+    targetPort: 8080
+    nodePort: 30007
+  volume:
+    name: opdata
+    kind: PersistentVolumeClaim
+    mountPath: /var/openproject/assets
+    pvc:
+      name: opdata
+      accessMode: ReadWriteOnce
+      storage: 400Mi
+
+
+proxy:
+  replicaCount: 1
+  name: proxy
+  goup: proxy
+  container:
+    args: ./docker/proxy
+    env:
+      - name: APP_HOST
+        value: web
+      - name: OPENPROJECT_RAILS__RELATIVE__URL__ROOT
+    image: openproject/community:10
+    pullPolicy: IfNotPresent
+    restartPolicy: Always
+  service:
+    name: web
+    type: NodePort
+    port: 80
+    targetPort: 80
+    nodePort: 30008
+
+
+storageClassName: local-directory
+
+volumes_opdata:
+  - name: "opdata-test"
+    size: "400Mi"
+    host: "minikube"
+    directory: "/mnt/minikue-helm-pv-0/"
+
+volume_pgdata:
+  - name: "pgdata-test"
+    size: "400Mi"
+    host: "minikube"
+    directory: "/mnt/minikue-helm-pv-1/"
+
+ingress:
+  enabled: false

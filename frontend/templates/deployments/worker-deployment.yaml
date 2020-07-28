@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.worker.name }}
+  labels:
+    worker: {{ .Values.worker.name }}
+    group: {{ .Values.worker.group }}
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  selector:
+    matchLabels:
+      worker: {{ .Values.worker.name }}
+  template:
+    metadata:
+      labels:
+        worker: {{ .Values.worker.name }}
+        group: {{ .Values.worker.group }}
+    spec:
+      volumes:
+        - name: {{ .Values.worker.volume.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.worker.volume.pvc.name }}
+      containers:
+        - name: {{ .Values.worker.name }}
+          image: {{ .Values.worker.container.image }}  
+          args:
+          - {{ .Values.worker.container.args }}
+          volumeMounts:
+            - name: {{ .Values.worker.volume.name }}
+              mountPath: {{ .Values.worker.volume.mountPath }}
+          env:
+            {{- range .Values.worker.container.env}}
+            - name: {{ .name | quote }}
+              value: {{ .value | quote}}
+            {{- end}}

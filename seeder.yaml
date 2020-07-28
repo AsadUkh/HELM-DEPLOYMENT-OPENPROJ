@@ -1,0 +1,23 @@
+replicaCount: 1
+
+frontend:
+  name: seeder
+  goup: seeder
+  container:
+    args: ./docker/seeder
+    env:
+      - name: DATABASE_URL
+        value: postgres://postgres:p4ssw0rd@open-project-database/openproject
+      - name: IMAP_ENABLED
+        value: "false"
+      - name: OPENPROJECT_CACHE__MEMCACHE__SERVER
+        value: cache:11211
+      - name: OPENPROJECT_RAILS__RELATIVE__URL__ROOT
+      - name: RAILS_CACHE_STORE
+        value: memcache
+      - name: USE_PUMA
+        value: "true"
+    image: openproject/community:10
+    pullPolicy: IfNotPresent
+    restartPolicy: Always
+    port: 11211

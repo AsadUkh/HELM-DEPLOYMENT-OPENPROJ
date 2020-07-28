@@ -1,0 +1,15 @@
+replicaCount: 1
+
+frontend:
+  name: proxy
+  goup: proxy
+  container:
+    args: ./docker/proxy
+    env:
+      - name: APP_HOST
+          value: web
+      - name: OPENPROJECT_RAILS__RELATIVE__URL__ROOT
+    image: openproject/community:10
+    pullPolicy: IfNotPresent
+    restartPolicy: Always
+    port: 80

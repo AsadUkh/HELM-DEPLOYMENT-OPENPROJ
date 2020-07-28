@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: {{ .Values.backend.volume.kind }}
+metadata:
+  name: {{ .Values.backend.volume.pvc.name }}
+spec:
+  accessModes:
+    - {{ .Values.backend.volume.pvc.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.backend.volume.pvc.storage }}

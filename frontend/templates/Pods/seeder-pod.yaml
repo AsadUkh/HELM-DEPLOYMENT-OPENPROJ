@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    frontend: {{ .Values.seeder.name }} 
+    group: {{ .Values.seeder.name }}
+  name: {{ .Values.seeder.name }}
+spec:
+  containers:
+  - args:
+    - {{ .Values.seeder.container.args }}
+    env:
+    {{- range .Values.seeder.container.env}}
+    - name: {{ .name | quote }}
+      value: {{ .value | quote}}
+    {{- end}}
+    image: {{ .Values.seeder.container.image }}
+    name: {{ .Values.seeder.name }}
+    volumeMounts:
+    - mountPath: {{ .Values.seeder.volume.mountPath }}
+      name: {{ .Values.seeder.volume.name }}
+  restartPolicy: {{ .Values.seeder.container.restartPolicy }}
+  volumes:
+  - name: {{ .Values.seeder.volume.name }}
+    persistentVolumeClaim:
+      claimName: {{ .Values.seeder.volume.pvc.name }}

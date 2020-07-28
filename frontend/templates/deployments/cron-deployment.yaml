@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.cron.name }}
+  labels:
+    cron: {{ .Values.cron.name }}
+    group: {{ .Values.cron.group }}
+spec:
+  replicas: {{ .Values.cron.replicaCount }}
+  selector:
+    matchLabels:
+      cron: {{ .Values.cron.name }}
+  template:
+    metadata:
+      labels:
+        cron: {{ .Values.cron.name }}
+        group: {{ .Values.cron.group }}
+    spec:
+      volumes:
+        - name: {{ .Values.cron.volume.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.cron.volume.pvc.name }}
+      containers:
+      - args:
+        - {{ .Values.cron.container.args }}
+        name: {{ .Values.cron.name }}
+        image: {{ .Values.cron.container.image }}  
+        volumeMounts:
+        - name: {{ .Values.cron.volume.name }}
+          mountPath: {{ .Values.cron.volume.mountPath }}
+        env:
+        {{- range .Values.cron.container.env}}
+        - name: {{ .name | quote }}
+          value: {{ .value | quote}}
+        {{- end}}

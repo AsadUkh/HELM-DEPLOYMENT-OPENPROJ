@@ -1,0 +1,19 @@
+{{- range $volume := .Values.volumes }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $volume.name }}
+  labels:
+    name: {{ $volume.name }}
+spec:
+  capacity:
+    storage: {{ $volume.size }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: {{ $.Values.storageClassName }}
+  local:
+    path: {{ $volume.directory }}
+{{- end }}
+

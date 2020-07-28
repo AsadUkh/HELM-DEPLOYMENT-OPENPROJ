@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.backend.name }}
+  labels:
+    app: {{ .Values.backend.name }}
+    group: {{ .Values.backend.group }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.backend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backend.name }}
+        group: {{ .Values.backend.group }}
+    spec:
+      volumes:
+        - name: {{ .Values.backend.volume.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.backend.volume.pvc.name }}
+      containers:
+        - name: {{ .Values.backend.name }}
+          env:
+          - name: POSTGRES_DB
+            value: openproject
+          - name: POSTGRES_PASSWORD
+            value: p4ssw0rd
+
+          image: {{ .Values.backend.container.image }}  
+          ports:
+            - containerPort: {{ .Values.backend.container.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.backend.config.name }}
+          volumeMounts:             
+            - name: {{ .Values.backend.volume.name }}
+              mountPath: {{ .Values.backend.volume.mountPath }} 

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.backend.config.name }}
+  labels:
+    group: {{ .Values.backend.group }}
+data: 
+{{- range .Values.backend.config.data }}
+  {{ .key }}: {{ .value }}
+{{- end}}

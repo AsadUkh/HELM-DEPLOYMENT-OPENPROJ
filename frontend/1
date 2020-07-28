@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.proxy.name }}
+  labels: 
+    group: {{ .Values.proxy.group }}
+spec:
+  type: {{ .Values.proxy.service.type }}
+  selector:             
+    proxy: {{ .Values.proxy.name }}
+  ports:
+    - port: {{ .Values.proxy.service.port }}       
+      targetPort: {{ .Values.proxy.container.port }}  
+      # nodePort: {{ .Values.proxy.service.nodePort }}

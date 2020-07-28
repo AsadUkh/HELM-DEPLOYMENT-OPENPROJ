@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.cache.name }}
+  labels: 
+    group: {{ .Values.cache.group }}
+spec:
+  type: {{ .Values.cache.service.type }}
+  selector:             
+    cache: {{ .Values.cache.name }}
+  ports:
+    - port: {{ .Values.cache.service.port }}       
+      targetPort: {{ .Values.cache.container.port }}  
